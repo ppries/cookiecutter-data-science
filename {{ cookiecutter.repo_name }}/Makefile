@@ -15,7 +15,11 @@ IS_ANACONDA=$(shell python -c "import sys;t=str('anaconda' in sys.version.lower(
 
 ## Install Python Dependencies
 requirements: test_environment
+ifeq (True, $(IS_ANACONDA))
+	conda install --file requirements.txt
+else
 	pip install -r requirements.txt
+endif
 
 ## Make Dataset
 data: requirements
@@ -41,6 +45,9 @@ sync_data_from_s3:
 create_environment:
 ifeq (True,$(IS_ANACONDA))
 		@echo ">>> Detected Anaconda, creating conda environment."
+		conda config --add channels menpo
+		conda config --add channels conda-forge
+		conda config --add channels defaults
 ifeq (3,$(findstring 3,$(PYTHON_INTERPRETER)))
 	conda create --name $(PROJECT_NAME) python=3.5
 else
